@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bestellungs-App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 300px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #ffffff;
+            border: 2px solid #D51317;
+            color: #333;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-radius: 18px 18px 0 0;
+            margin: -1px -1px 0 -1px;
+        }
+
+        .header img {
+            max-width: 200px;
+            height: auto;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .category {
+            margin-bottom: 30px;
+        }
+
+        .category h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #D51317;
+            display: inline-block;
+        }
+
+        .item {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .item-button {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px 20px;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            text-align: left;
+            position: relative;
+        }
+
+        .item-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .item-button:active {
+            transform: translateY(0);
+        }
+
+        .quantity-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #09771c;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .minus-button {
+            background: #707070;
+            color: white;
+            border: none;
+            padding: 18px 15px;
+            border-radius: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(112, 112, 112, 0.3);
+            min-width: 50px;
+        }
+
+        .minus-button:hover {
+            background: #606060;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(112, 112, 112, 0.4);
+        }
+
+        .minus-button:active {
+            transform: translateY(0);
+        }
+
+        .minus-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            padding: 20px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+            z-index: 1000;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .footer-content {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .cart-section {
+            margin-bottom: 15px;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #D51317;
+        }
+
+        .cart-header h3 {
+            color: #333;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .cart-toggle {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .cart-items {
+            max-height: 120px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .cart-item-name {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .cart-item-quantity {
+            background: #f8f9fa;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+
+        .cart-item-price {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .cart-item.discount {
+            color: #09771c;
+            font-weight: 500;
+        }
+
+        .cart-item.discount .cart-item-price {
+            color: #09771c;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .summary-row.discount {
+            color: #09771c;
+            font-weight: 500;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            padding-top: 10px;
+            border-top: 2px solid #D51317;
+        }
+
+        .clear-button {
+            background: #D51317;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .clear-button:hover {
+            background: #B5111A;
+        }
+
+        .item-button.drinks {
+            background: #dbdbdb;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(219, 219, 219, 0.3);
+        }
+
+        .item-button.food {
+            background: #D51317;
+            color: white;
+            box-shadow: 0 4px 15px rgba(213, 19, 23, 0.3);
+        }
+
+        .item-button.drinks:hover {
+            background: #cecece;
+            box-shadow: 0 6px 20px rgba(219, 219, 219, 0.4);
+        }
+
+        .item-button.food:hover {
+            background: #B5111A;
+            box-shadow: 0 6px 20px rgba(213, 19, 23, 0.4);
+        }
+
+        .special-button {
+            background: #09771c;
+            color: white;
+            border: none;
+            padding: 18px 20px;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(9, 119, 28, 0.3);
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .special-button:hover {
+            background: #076617;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(9, 119, 28, 0.4);
+        }
+
+        .special-button:active {
+            transform: translateY(0);
+        }
+
+        .special-button.active {
+            background: #076617;
+            box-shadow: 0 6px 20px rgba(9, 119, 28, 0.4);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .empty-cart {
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            padding: 20px;
+        }
+        
+        .button-group-container {
+            display: flex;
+            flex: 1;
+            gap: 10px;
+        }
+
+        .item-button.unit-button {
+            flex-grow: 0;
+            flex-shrink: 1;
+            font-size: 14px;
+            padding: 18px 15px;
+        }
+
+        .item-button.special-pfand {
+            background: #FFC107;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+        }
+
+        .item-button.special-pfand:hover {
+            background: #FFB300;
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+        }
+
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+                padding-bottom: 300px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .item-button {
+                font-size: 14px;
+                padding: 15px 18px;
+            }
+            
+            .item-button.unit-button {
+                font-size: 12px;
+                padding: 15px 12px;
+            }
+
+            .minus-button {
+                padding: 15px 12px;
+                font-size: 18px;
+            }
+
+            .footer {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://www.otto-gourmet.de/static/version1752145856/frontend/ottogourmet/ogtheme/de_DE/images/ottogourmet-logo.svg" alt="Otto Gourmet Logo">
+        </div>
+
+        <div class="content">
+            <div class="category">
+                <h2>🍴 Speisen</h2>
+                <div class="item">
+                    <div class="button-group-container">
+                        <button class="item-button food" onclick="addItemToGroup('oysters', 'AUSTERN 1 Stk.', 4.00, 'food')" id="btn-AUSTERN 1 Stk.">AUSTERN 1 Stk.<span class="quantity-badge hidden" id="qty-AUSTERN 1 Stk.">0</span></button>
+                        <button class="item-button food unit-button" onclick="addItemToGroup('oysters', 'CARLINGFORD AUSTERN 3 Stk.', 10.00, 'food')" id="btn-CARLINGFORD AUSTERN 3 Stk.">3 Stk.<span class="quantity-badge hidden" id="qty-CARLINGFORD AUSTERN 3 Stk.">0</span></button>
+                        <button class="item-button food unit-button" onclick="addItemToGroup('oysters', 'CARLINGFORD AUSTERN 12 Stk.', 36.00, 'food')" id="btn-CARLINGFORD AUSTERN 12 Stk.">12 Stk.<span class="quantity-badge hidden" id="qty-CARLINGFORD AUSTERN 12 Stk.">0</span></button>
+                    </div>
+                    <button class="minus-button" onclick="removeLastFromGroup('oysters')" id="minus-oysters" disabled>-</button>
+                </div>
+                <div class="item">
+                    <button class="item-button food" onclick="addItem('VITELLO TONNATO', 12.00, 'food')" id="btn-VITELLO TONNATO">VITELLO TONNATO<span class="quantity-badge hidden" id="qty-VITELLO TONNATO">0</span></button>
+                    <button class="minus-button" onclick="removeItem('VITELLO TONNATO', 12.00, 'food')" id="minus-VITELLO TONNATO" disabled>-</button>
+                </div>
+                <div class="item">
+                    <button class="item-button food" onclick="addItem('BURRATA', 12.00, 'food')" id="btn-BURRATA">BURRATA<span class="quantity-badge hidden" id="qty-BURRATA">0</span></button>
+                    <button class="minus-button" onclick="removeItem('BURRATA', 12.00, 'food')" id="minus-BURRATA" disabled>-</button>
+                </div>
+                <div class="item">
+                    <button class="item-button food" onclick="addItem('PINSA', 12.00, 'food')" id="btn-PINSA">PINSA<span class="quantity-badge hidden" id="qty-PINSA">0</span></button>
+                    <button class="minus-button" onclick="removeItem('PINSA', 12.00, 'food')" id="minus-PINSA" disabled>-</button>
+                </div>
+                <div class="item">
+                    <button class="item-button food" onclick="addItem('Omas TAFELSPITZ', 18.00, 'food')" id="btn-Omas TAFELSPITZ">Omas TAFELSPITZ<span class="quantity-badge hidden" id="qty-Omas TAFELSPITZ">0</span></button>
+                    <button class="minus-button" onclick="removeItem('Omas TAFELSPITZ', 18.00, 'food')" id="minus-Omas TAFELSPITZ" disabled>-</button>
+                </div>
+                <div class="item">
+                    <button class="item-button food" onclick="addItem('HEREFORD PRIME STEAK', 24.00, 'food')" id="btn-HEREFORD PRIME STEAK">HEREFORD PRIME STEAK<span class="quantity-badge hidden" id="qty-HEREFORD PRIME STEAK">0</span></button>
+                    <button class="minus-button" onclick="removeItem('HEREFORD PRIME STEAK', 24.00, 'food')" id="minus-HEREFORD PRIME STEAK" disabled>-</button>
+                </div>
+                <div class="item">
+                    <button class="item-button food" onclick="addItem('Weiße SCHOKOLADE', 8.00, 'food')" id="btn-Weiße SCHOKOLADE">Weiße SCHOKOLADE<span class="quantity-badge hidden" id="qty-Weiße SCHOKOLADE">0</span></button>
+                    <button class="minus-button" onclick="removeItem('Weiße SCHOKOLADE', 8.00, 'food')" id="minus-Weiße SCHOKOLADE" disabled>-</button>
+                </div>
+            </div>
+
+            <div class="category">
+                <h2>🥂 Getränke</h2>
+                <div class="item">
+                    <div class="button-group-container">
+                        <button class="item-button drinks" onclick="addItemToGroup('water', 'GEROLSTEINER Wasser 0,2l', 2.00, 'drinks')" id="btn-GEROLSTEINER Wasser 0,2l">GEROLSTEINER Wasser 0,2l<span class="quantity-badge hidden" id="qty-GEROLSTEINER Wasser 0,2l">0</span></button>
+                        <button class="item-button drinks unit-button" onclick="addItemToGroup('water', 'GEROLSTEINER Wasser 0,75l', 6.00, 'drinks')" id="btn-GEROLSTEINER Wasser 0,75l">0,75l<span class="quantity-badge hidden" id="qty-GEROLSTEINER Wasser 0,75l">0</span></button>
+                    </div>
+                    <button class="minus-button" onclick="removeLastFromGroup('water')" id="minus-water" disabled>-</button>
+                </div>
+                <div class="item">
+                    <button class="item-button drinks" onclick="addItem('SOFTDRINKS 0,33l', 3.00, 'drinks')" id="btn-SOFTDRINKS 0,33l">SOFTDRINKS 0,33l<span class="quantity-badge hidden" id="qty-SOFTDRINKS 0,33l">0</span></button>
+                    <button class="minus-button" onclick="removeItem('SOFTDRINKS 0,33l', 3.00, 'drinks')" id="minus-SOFTDRINKS 0,33l" disabled>-</button>
+                </div>
+                <div class="item">
+                    <button class="item-button drinks" onclick="addItem('BIER 0,33l', 3.00, 'drinks')" id="btn-BIER 0,33l">BIER 0,33l<span class="quantity-badge hidden" id="qty-BIER 0,33l">0</span></button>
+                    <button class="minus-button" onclick="removeItem('BIER 0,33l', 3.00, 'drinks')" id="minus-BIER 0,33l" disabled>-</button>
+                </div>
+                <div class="item">
+                    <button class="item-button drinks" onclick="addItem('HAUSAPERITIF 0,2l', 8.00, 'drinks')" id="btn-HAUSAPERITIF 0,2l">HAUSAPERITIF 0,2l<span class="quantity-badge hidden" id="qty-HAUSAPERITIF 0,2l">0</span></button>
+                    <button class="minus-button" onclick="removeItem('HAUSAPERITIF 0,2l', 8.00, 'drinks')" id="minus-HAUSAPERITIF 0,2l" disabled>-</button>
+                </div>
+                <div class="item">
+                    <div class="button-group-container">
+                        <button class="item-button drinks" onclick="addItemToGroup('sekt', 'SCHNEIDER Sekt 0,15l', 7.00, 'drinks')" id="btn-SCHNEIDER Sekt 0,15l">SCHNEIDER Sekt 0,15l<span class="quantity-badge hidden" id="qty-SCHNEIDER Sekt 0,15l">0</span></button>
+                        <button class="item-button drinks unit-button" onclick="addItemToGroup('sekt', 'MARKUS SCHNEIDER Sekt 0,75l', 30.00, 'drinks')" id="btn-MARKUS SCHNEIDER Sekt 0,75l">0,75l<span class="quantity-badge hidden" id="qty-MARKUS SCHNEIDER Sekt 0,75l">0</span></button>
+                    </div>
+                    <button class="minus-button" onclick="removeLastFromGroup('sekt')" id="minus-sekt" disabled>-</button>
+                </div>
+                <div class="item">
+                    <div class="button-group-container">
+                        <button class="item-button drinks" onclick="addItemToGroup('wine', 'WEINE 0,1l', 5.00, 'drinks')" id="btn-WEINE 0,1l">WEINE 0,1l<span class="quantity-badge hidden" id="qty-WEINE 0,1l">0</span></button>
+                        <button class="item-button drinks unit-button" onclick="addItemToGroup('wine', 'WEINE 0,2l', 10.00, 'drinks')" id="btn-WEINE 0,2l">0,2l<span class="quantity-badge hidden" id="qty-WEINE 0,2l">0</span></button>
+                        <button class="item-button drinks unit-button" onclick="addItemToGroup('wine', 'WEINE 0,75l', 30.00, 'drinks')" id="btn-WEINE 0,75l">0,75l<span class="quantity-badge hidden" id="qty-WEINE 0,75l">0</span></button>
+                    </div>
+                    <button class="minus-button" onclick="removeLastFromGroup('wine')" id="minus-wine" disabled>-</button>
+                </div>
+                <div class="item">
+                    <div class="button-group-container">
+                        <button class="item-button drinks" onclick="addItemToGroup('reservebrut', 'Réserve Brut 0,1l', 9.00, 'drinks')" id="btn-Réserve Brut 0,1l">Réserve Brut 0,1l<span class="quantity-badge hidden" id="qty-Réserve Brut 0,1l">0</span></button>
+                        <button class="item-button drinks unit-button" onclick="addItemToGroup('reservebrut', 'Réserve Brut 0,75l', 59.00, 'drinks')" id="btn-Réserve Brut 0,75l">0,75l<span class="quantity-badge hidden" id="qty-Réserve Brut 0,75l">0</span></button>
+                        <button class="item-button drinks unit-button" onclick="addItemToGroup('reservebrut', 'Réserve Brut 1,5l', 115.00, 'drinks')" id="btn-Réserve Brut 1,5l">1,5l<span class="quantity-badge hidden" id="qty-Réserve Brut 1,5l">0</span></button>
+                    </div>
+                    <button class="minus-button" onclick="removeLastFromGroup('reservebrut')" id="minus-reservebrut" disabled>-</button>
+                </div>
+                <div class="item">
+                    <div class="button-group-container">
+                        <button class="item-button drinks" onclick="addItemToGroup('reserverose', 'Réserve Rose 0,1l', 11.00, 'drinks')" id="btn-Réserve Rose 0,1l">Réserve Rose 0,1l<span class="quantity-badge hidden" id="qty-Réserve Rose 0,1l">0</span></button>
+                        <button class="item-button drinks unit-button" onclick="addItemToGroup('reserverose', 'Réserve Rose 0,75l', 69.00, 'drinks')" id="btn-Réserve Rose 0,75l">0,75l<span class="quantity-badge hidden" id="qty-Réserve Rose 0,75l">0</span></button>
+                    </div>
+                    <button class="minus-button" onclick="removeLastFromGroup('reserverose')" id="minus-reserverose" disabled>-</button>
+                </div>
+                <div class="item">
+                    <button class="item-button drinks" onclick="addItem('Organic Extra Brut 0,75l', 69.00, 'drinks')" id="btn-Organic Extra Brut 0,75l">Organic Extra Brut 0,75l<span class="quantity-badge hidden" id="qty-Organic Extra Brut 0,75l">0</span></button>
+                    <button class="minus-button" onclick="removeItem('Organic Extra Brut 0,75l', 69.00, 'drinks')" id="minus-Organic Extra Brut 0,75l" disabled>-</button>
+                </div>
+                <div class="item">
+                    <div class="button-group-container">
+                        <button class="item-button drinks" onclick="addItemToGroup('collection', 'Collection Vintage 0,1l', 13.00, 'drinks')" id="btn-Collection Vintage 0,1l">Collection Vintage 0,1l<span class="quantity-badge hidden" id="qty-Collection Vintage 0,1l">0</span></button>
+                        <button class="item-button drinks unit-button" onclick="addItemToGroup('collection', 'Collection Vintage 0,75l', 79.00, 'drinks')" id="btn-Collection Vintage 0,75l">0,75l<span class="quantity-badge hidden" id="qty-Collection Vintage 0,75l">0</span></button>
+                    </div>
+                    <button class="minus-button" onclick="removeLastFromGroup('collection')" id="minus-collection" disabled>-</button>
+                </div>
+                <div class="item">
+                    <button class="item-button drinks" onclick="addItem('Brut Millessime 0,75l', 89.00, 'drinks')" id="btn-Brut Millessime 0,75l">Brut Millessime 0,75l<span class="quantity-badge hidden" id="qty-Brut Millessime 0,75l">0</span></button>
+                    <button class="minus-button" onclick="removeItem('Brut Millessime 0,75l', 89.00, 'drinks')" id="minus-Brut Millessime 0,75l" disabled>-</button>
+                </div>
+                <div class="item">
+                    <button class="item-button drinks" onclick="addItem('Palmes d‘Or Brut 0,75l', 129.00, 'drinks')" id="btn-Palmes d‘Or Brut 0,75l">Palmes d‘Or Brut 0,75l<span class="quantity-badge hidden" id="qty-Palmes d‘Or Brut 0,75l">0</span></button>
+                    <button class="minus-button" onclick="removeItem('Palmes d‘Or Brut 0,75l', 129.00, 'drinks')" id="minus-Palmes d‘Or Brut 0,75l" disabled>-</button>
+                </div>
+                <div class="item">
+                    <button class="item-button special-pfand" onclick="addItem('GLASPFAND', 2.00, 'drinks')" id="btn-GLASPFAND">GLASPFAND<span class="quantity-badge hidden" id="qty-GLASPFAND">0</span></button>
+                    <button class="minus-button" onclick="removeItem('GLASPFAND', 2.00, 'drinks')" id="minus-GLASPFAND" disabled>-</button>
+                </div>
+                
+                <button class="special-button" onclick="applyEmployeeDiscount()" id="discount-button">
+                    🎯 Mitarbeiterrabatt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-content">
+            <div class="cart-section">
+                <div class="cart-header">
+                    <h3>🛒 Warenkorb</h3>
+                    <button class="cart-toggle" onclick="toggleCart()" id="cart-toggle">
+                        Details anzeigen
+                    </button>
+                </div>
+                <div class="cart-items hidden" id="cart-items">
+                    <div class="empty-cart" id="empty-cart">
+                        Warenkorb ist leer
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-row">
+                <span>Summe Speisen:</span>
+                <span id="food-total">0,00 €</span>
+            </div>
+            <div class="summary-row">
+                <span>Summe Getränke:</span>
+                <span id="drinks-total">0,00 €</span>
+            </div>
+            <div class="summary-row discount hidden" id="discount-row">
+                <span>Mitarbeiterrabatt (25%):</span>
+                <span id="discount-amount">-0,00 €</span>
+            </div>
+            <div class="total-row">
+                <span>Gesamtsumme:</span>
+                <span id="total-amount">0,00 €</span>
+            </div>
+            <button class="clear-button" onclick="clearAll()">🗑️ Alles zurücksetzen</button>
+        </div>
+    </div>
+
+    <script>
+        // Datenstruktur für Persistenz
+        let orderData = {
+            items: {},
+            foodTotal: 0,
+            drinksTotal: 0,
+            employeeDiscount: false,
+            discountAmount: 0
+        };
+
+        // Datenstruktur für Artikelgruppen
+        let groupHistory = {};
+        let cartVisible = false;
+
+        function addItemToGroup(groupName, itemName, price, category) {
+            if (!groupHistory[groupName]) {
+                groupHistory[groupName] = [];
+            }
+            groupHistory[groupName].push(itemName);
+            addItem(itemName, price, category);
+            updateGroupMinusButton(groupName);
+        }
+
+        function removeLastFromGroup(groupName) {
+            if (groupHistory[groupName] && groupHistory[groupName].length > 0) {
+                const lastItemName = groupHistory[groupName].pop();
+                const itemDetails = orderData.items[lastItemName];
+                if (itemDetails) {
+                    removeItem(lastItemName, itemDetails.price, itemDetails.category);
+                }
+            }
+            updateGroupMinusButton(groupName);
+        }
+
+        function updateGroupMinusButton(groupName) {
+            const minusBtn = document.getElementById('minus-' + groupName);
+            if (minusBtn) {
+                minusBtn.disabled = !(groupHistory[groupName] && groupHistory[groupName].length > 0);
+            }
+        }
+        
+        function addItem(name, price, category) {
+            if (!orderData.items[name]) {
+                orderData.items[name] = {
+                    quantity: 0,
+                    price: price,
+                    category: category
+                };
+            }
+            orderData.items[name].quantity++;
+
+            if (category === 'food') {
+                orderData.foodTotal += price;
+            } else if (category === 'drinks') {
+                orderData.drinksTotal += price;
+            }
+
+            updateDisplay();
+            updateQuantityBadge(name);
+            updateMinusButton(name);
+            vibrate();
+        }
+
+        function removeItem(name, price, category) {
+            if (orderData.items[name] && orderData.items[name].quantity > 0) {
+                orderData.items[name].quantity--;
+
+                if (category === 'food') {
+                    orderData.foodTotal -= price;
+                } else if (category === 'drinks') {
+                    orderData.drinksTotal -= price;
+                }
+
+                if (orderData.items[name].quantity === 0) {
+                    delete orderData.items[name];
+                }
+
+                updateDisplay();
+                updateQuantityBadge(name);
+                updateMinusButton(name);
+                vibrate();
+            }
+        }
+
+        function applyEmployeeDiscount() {
+            orderData.employeeDiscount = !orderData.employeeDiscount;
+            
+            const discountButton = document.getElementById('discount-button');
+            const discountRow = document.getElementById('discount-row');
+            
+            if (orderData.employeeDiscount) {
+                discountButton.textContent = '✅ Mitarbeiterrabatt aktiv';
+                discountButton.classList.add('active');
+                discountRow.classList.remove('hidden');
+            } else {
+                discountButton.textContent = '🎯 Mitarbeiterrabatt';
+                discountButton.classList.remove('active');
+                discountRow.classList.add('hidden');
+            }
+            
+            updateDisplay();
+            vibrate();
+        }
+
+        function updateQuantityBadge(name) {
+            const badge = document.getElementById('qty-' + name);
+            if (badge) {
+                if (orderData.items[name] && orderData.items[name].quantity > 0) {
+                    badge.textContent = orderData.items[name].quantity;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+
+        function updateMinusButton(name) {
+            const minusBtn = document.getElementById('minus-' + name);
+            if(minusBtn) {
+                 if (orderData.items[name] && orderData.items[name].quantity > 0) {
+                    minusBtn.disabled = false;
+                } else {
+                    minusBtn.disabled = true;
+                }
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('food-total').textContent = orderData.foodTotal.toFixed(2) + ' €';
+            document.getElementById('drinks-total').textContent = orderData.drinksTotal.toFixed(2) + ' €';
+            
+            let subtotal = orderData.foodTotal + orderData.drinksTotal;
+            let total = subtotal;
+            
+            if (orderData.employeeDiscount) {
+                orderData.discountAmount = subtotal * 0.25;
+                total = subtotal - orderData.discountAmount;
+                document.getElementById('discount-amount').textContent = '-' + orderData.discountAmount.toFixed(2) + ' €';
+            } else {
+                orderData.discountAmount = 0;
+            }
+            
+            document.getElementById('total-amount').textContent = total.toFixed(2) + ' €';
+
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            const emptyCart = document.getElementById('empty-cart');
+            
+            const existingItems = cartItems.querySelectorAll('.cart-item');
+            existingItems.forEach(item => item.remove());
+
+            const itemCount = Object.keys(orderData.items).length;
+            
+            if (itemCount === 0 && !orderData.employeeDiscount) {
+                emptyCart.style.display = 'block';
+            } else {
+                emptyCart.style.display = 'none';
+                
+                const sortedItems = Object.entries(orderData.items).sort((a, b) => {
+                    if (a[1].category === b[1].category) {
+                        return a[0].localeCompare(b[0]);
+                    }
+                    return a[1].category === 'food' ? -1 : 1;
+                });
+
+                sortedItems.forEach(([name, data]) => {
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item';
+                    cartItem.innerHTML = `
+                        <span class="cart-item-name">${name}</span>
+                        <span class="cart-item-quantity">${data.quantity}x</span>
+                        <span class="cart-item-price">${(data.price * data.quantity).toFixed(2)} €</span>
+                    `;
+                    cartItems.appendChild(cartItem);
+                });
+
+                if (orderData.employeeDiscount) {
+                    const discountItem = document.createElement('div');
+                    discountItem.className = 'cart-item discount';
+                    discountItem.innerHTML = `
+                        <span class="cart-item-name">Mitarbeiterrabatt (25%)</span>
+                        <span class="cart-item-quantity"></span>
+                        <span class="cart-item-price">-${orderData.discountAmount.toFixed(2)} €</span>
+                    `;
+                    cartItems.appendChild(discountItem);
+                }
+            }
+        }
+
+        function toggleCart() {
+            const cartItems = document.getElementById('cart-items');
+            const cartToggle = document.getElementById('cart-toggle');
+            
+            cartVisible = !cartVisible;
+            
+            if (cartVisible) {
+                cartItems.classList.remove('hidden');
+                cartToggle.textContent = 'Details verbergen';
+            } else {
+                cartItems.classList.add('hidden');
+                cartToggle.textContent = 'Details anzeigen';
+            }
+        }
+
+        function clearAll() {
+            orderData = {
+                items: {},
+                foodTotal: 0,
+                drinksTotal: 0,
+                employeeDiscount: false,
+                discountAmount: 0
+            };
+            groupHistory = {};
+
+            document.querySelectorAll('.quantity-badge').forEach(badge => {
+                badge.classList.add('hidden');
+            });
+
+            document.querySelectorAll('.minus-button').forEach(btn => {
+                btn.disabled = true;
+            });
+
+            const discountButton = document.getElementById('discount-button');
+            const discountRow = document.getElementById('discount-row');
+            discountButton.textContent = '🎯 Mitarbeiterrabatt';
+            discountButton.classList.remove('active');
+            discountRow.classList.add('hidden');
+
+            cartVisible = false;
+            document.getElementById('cart-items').classList.add('hidden');
+            document.getElementById('cart-toggle').textContent = 'Details anzeigen';
+
+            updateDisplay();
+            vibrate();
+        }
+
+        function vibrate() {
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>
